@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#07141d" />
+  <title>脂肪酸 β-氧化：线粒体突围</title>
+  <style>
+    :root {
+      --ink: #effffb; --muted: #9db8b5; --bg: #06131c; --panel: #0d2028;
+      --cyan: #36e0cf; --yellow: #ffd166; --coral: #ff6b6b; --blue: #58a6ff;
+      --line: rgba(157,184,181,.18); --shadow: 0 18px 60px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; color: var(--ink); background:
+      radial-gradient(circle at 85% 8%, rgba(54,224,207,.16), transparent 28rem),
+      radial-gradient(circle at 10% 78%, rgba(88,166,255,.12), transparent 25rem), var(--bg);
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; }
+    body { min-height: 100svh; overflow-x: hidden; }
+    button, input { font: inherit; }
+    button { touch-action: manipulation; }
+    .shell { width: min(100%, 720px); min-height: 100svh; margin: auto; padding: max(18px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom)); }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: .04em; }
+    .brand-mark { display:grid; place-items:center; width: 36px; height:36px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.05); }
+    .status { display:flex; gap: 8px; font-weight: 800; }
+    .pill { padding: 8px 11px; border: 1px solid var(--line); border-radius: 999px; background: rgba(6,19,28,.72); backdrop-filter: blur(10px); }
+    .card { position:relative; overflow:hidden; border: 1px solid var(--line); border-radius: 26px; background: linear-gradient(145deg, rgba(18,46,55,.94), rgba(8,26,34,.94)); box-shadow: var(--shadow); }
+    .screen { display:none; animation: rise .35s ease both; }
+    .screen.active { display:block; }
+    @keyframes rise { from { opacity:0; transform:translateY(8px) } }
+    .hero { min-height: calc(100svh - 96px); display:flex; flex-direction:column; justify-content:center; padding: 28px; }
+    .kicker { margin:0 0 10px; color:var(--cyan); font-size:.8rem; font-weight:900; letter-spacing:.18em; }
+    h1 { margin:0; font-size:clamp(2.35rem, 12vw, 4.6rem); line-height:.96; letter-spacing:-.06em; }
+    h1 em { display:block; color:var(--yellow); font-style:normal; }
+    .lead { max-width: 29rem; margin:18px 0 24px; color:var(--muted); line-height:1.75; }
+    .mito { position:relative; height:170px; margin: 2px -8px 22px; }
+    .mito-body { position:absolute; inset:25px 8% 18px; border:3px solid var(--cyan); border-radius: 50% 42% 52% 45%; transform:rotate(-4deg); box-shadow:0 0 45px rgba(54,224,207,.16) inset; }
+    .mito-body::after { content:""; position:absolute; inset:15px; border-radius:inherit; background: repeating-radial-gradient(ellipse at 20% 30%, transparent 0 13px, rgba(54,224,207,.5) 14px 16px, transparent 17px 28px); opacity:.75; }
+    .fatty { position:absolute; left:1%; top:7px; display:flex; gap:5px; transform:rotate(13deg); }
+    .fatty i { width:13px; height:13px; border-radius:50%; background:var(--yellow); box-shadow:0 0 14px rgba(255,209,102,.3); }
+    .fatty i:last-child { background:var(--coral); }
+    .primary { width:100%; border:0; border-radius:16px; padding:16px 20px; background:var(--cyan); color:#03201d; font-weight:950; cursor:pointer; box-shadow:0 10px 28px rgba(54,224,207,.22); }
+    .primary:active { transform:translateY(1px); }
+    .minor { margin-top:12px; color:var(--muted); font-size:.78rem; text-align:center; }
+    .setup { padding:26px; }
+    .setup h2, .result h2 { margin:0 0 10px; font-size:2rem; }
+    label { display:block; margin:22px 0 8px; color:var(--muted); font-size:.85rem; font-weight:800; }
+    input { width:100%; padding:15px; border:1px solid var(--line); border-radius:14px; background:#071921; color:var(--ink); outline:none; }
+    input:focus { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(54,224,207,.12); }
+    .modes { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:8px 0 22px; }
+    .mode { border:1px solid var(--line); border-radius:14px; padding:12px 6px; color:var(--muted); background:rgba(255,255,255,.025); font-size:.82rem; font-weight:800; cursor:pointer; }
+    .mode.active { color:#03201d; border-color:var(--cyan); background:var(--cyan); }
+    .progress-wrap { margin: 2px 0 16px; }
+    .progress-meta { display:flex; justify-content:space-between; margin-bottom:7px; color:var(--muted); font-size:.78rem; font-weight:800; }
+    .track { height:8px; overflow:hidden; border-radius:999px; background:rgba(255,255,255,.08); }
+    .bar { height:100%; width:0; border-radius:inherit; background:linear-gradient(90deg,var(--cyan),var(--yellow)); transition:width .4s ease; }
+    .question { padding:24px; }
+    .chapter { color:var(--cyan); font-size:.74rem; font-weight:950; letter-spacing:.13em; text-transform:uppercase; }
+    .question h2 { margin:10px 0 18px; font-size:clamp(1.35rem,6vw,1.8rem); line-height:1.45; }
+    .prompt-note { margin:-8px 0 18px; color:var(--muted); line-height:1.55; font-size:.9rem; }
+    .answers { display:grid; gap:10px; }
+    .answer { display:flex; align-items:flex-start; gap:12px; width:100%; padding:15px; border:1px solid var(--line); border-radius:15px; color:var(--ink); background:rgba(255,255,255,.025); text-align:left; line-height:1.45; cursor:pointer; }
+    .answer b { flex:0 0 26px; display:grid; place-items:center; height:26px; border-radius:8px; color:var(--cyan); background:rgba(54,224,207,.1); }
+    .answer.correct { border-color:var(--cyan); background:rgba(54,224,207,.12); }
+    .answer.wrong { border-color:var(--coral); background:rgba(255,107,107,.12); }
+    .answer.dim { opacity:.44; }
+    .feedback { display:none; margin-top:16px; padding:16px; border-radius:15px; background:#06171e; line-height:1.55; }
+    .feedback.show { display:block; animation:rise .25s ease; }
+    .feedback strong { display:block; margin-bottom:5px; color:var(--yellow); }
+    .feedback p { margin:0; color:var(--muted); font-size:.9rem; }
+    .next { display:none; margin-top:14px; }
+    .next.show { display:block; }
+    .result { padding:28px; text-align:center; }
+    .grade { display:grid; place-items:center; width:145px; height:145px; margin:22px auto; border:8px solid rgba(54,224,207,.14); border-top-color:var(--cyan); border-right-color:var(--yellow); border-radius:50%; }
+    .grade strong { font-size:2.3rem; line-height:1; }
+    .grade span { display:block; color:var(--muted); font-size:.72rem; font-weight:800; }
+    .result-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:20px 0; }
+    .metric { padding:14px 5px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.025); }
+    .metric strong { display:block; font-size:1.3rem; color:var(--yellow); }
+    .metric span { color:var(--muted); font-size:.72rem; }
+    .badge { margin:10px 0 20px; padding:14px; border:1px dashed rgba(255,209,102,.5); border-radius:15px; color:var(--yellow); font-weight:900; }
+    .review { margin:20px 0; text-align:left; }
+    .review-item { padding:12px 0; border-bottom:1px solid var(--line); font-size:.9rem; }
+    .review-item b { color:var(--coral); }
+    .toast { position:fixed; left:50%; bottom:26px; z-index:5; transform:translate(-50%,20px); opacity:0; pointer-events:none; padding:11px 16px; border-radius:999px; background:var(--yellow); color:#2a2104; font-weight:900; transition:.25s; }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    .shake { animation:shake .28s linear; }
+    @keyframes shake { 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+    @media (max-width:380px) { .shell{padding-left:12px;padding-right:12px}.hero,.setup,.question,.result{padding:20px}.status{font-size:.82rem} }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after{animation:none!important;transition:none!important} }
+
+    /* Competition edition: visual storytelling */
+    body::before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.32; background-image:
+      radial-gradient(circle, rgba(255,255,255,.55) 0 1px, transparent 1.5px);
+      background-size:42px 42px; mask-image:linear-gradient(to bottom,black,transparent 88%); animation:drift 18s linear infinite; }
+    @keyframes drift { to { background-position:42px 84px; } }
+    .aurora { position:fixed; width:36rem; height:36rem; border-radius:50%; filter:blur(90px); opacity:.12; pointer-events:none; animation:float 10s ease-in-out infinite alternate; }
+    .aurora.a { left:-20rem; top:-10rem; background:var(--cyan); }
+    .aurora.b { right:-22rem; bottom:-12rem; background:#7c5cff; animation-delay:-5s; }
+    @keyframes float { to { transform:translate(4rem,3rem) scale(1.15); } }
+    .sound { width:38px; height:38px; padding:0; border:1px solid var(--line); border-radius:999px; color:var(--ink); background:rgba(6,19,28,.72); cursor:pointer; }
+    .sound.off { opacity:.5; }
+    .hero::before { content:""; position:absolute; inset:-2px; z-index:0; opacity:.35; background:
+      linear-gradient(115deg,transparent 12%,rgba(54,224,207,.16) 30%,transparent 49%);
+      transform:translateX(-120%); animation:scan 5.5s ease-in-out infinite; }
+    @keyframes scan { 55%,100% { transform:translateX(130%); } }
+    .hero > * { position:relative; z-index:1; }
+    .live-tag { display:inline-flex; align-items:center; align-self:flex-start; gap:7px; margin-bottom:13px; padding:6px 10px; border:1px solid rgba(255,107,107,.3); border-radius:999px; color:#ffd7d7; background:rgba(255,107,107,.08); font-size:.68rem; font-weight:900; letter-spacing:.12em; }
+    .live-tag::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--coral); box-shadow:0 0 0 5px rgba(255,107,107,.12); animation:pulse 1.5s ease-out infinite; }
+    @keyframes pulse { 70%,100% { box-shadow:0 0 0 10px transparent; } }
+    .hero-chips { display:flex; flex-wrap:wrap; gap:7px; margin:-7px 0 18px; }
+    .hero-chip { padding:6px 9px; border:1px solid var(--line); border-radius:9px; color:var(--muted); background:rgba(255,255,255,.035); font-size:.7rem; font-weight:800; }
+    .mito { height:202px; border:1px solid rgba(54,224,207,.12); border-radius:20px; background:radial-gradient(circle at center,rgba(54,224,207,.08),transparent 65%); }
+    .mito::before,.mito::after { position:absolute; z-index:2; padding:4px 7px; border-radius:7px; color:var(--muted); background:#071921; font-size:.62rem; font-weight:800; }
+    .mito::before { content:"CYTOSOL"; left:10px; top:10px; }
+    .mito::after { content:"MATRIX"; right:15%; bottom:28px; color:var(--cyan); }
+    .mito-body { inset:36px 8% 22px; background:rgba(4,24,29,.38); animation:breathe 3.2s ease-in-out infinite; }
+    @keyframes breathe { 50% { transform:rotate(-2deg) scale(1.025); filter:drop-shadow(0 0 12px rgba(54,224,207,.36)); } }
+    .fatty { z-index:3; top:17px; animation:shuttle 4.8s ease-in-out infinite; }
+    @keyframes shuttle { 0%,12% { transform:translate(0,0) rotate(13deg); } 48%,62% { transform:translate(132px,69px) rotate(-8deg); } 100% { transform:translate(220px,102px) rotate(8deg); opacity:.15; } }
+    .gate { position:absolute; z-index:4; left:43%; top:60px; width:44px; height:70px; border:2px solid var(--yellow); border-width:0 3px; filter:drop-shadow(0 0 8px rgba(255,209,102,.45)); }
+    .gate::after { content:"CPT I"; position:absolute; top:24px; left:-4px; width:52px; color:var(--yellow); font-size:.58rem; font-weight:900; text-align:center; }
+    .mission-map { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:0 0 16px; }
+    .map-node { position:relative; padding:10px 6px; border:1px solid var(--line); border-radius:13px; color:var(--muted); background:rgba(255,255,255,.025); text-align:center; font-size:.68rem; font-weight:850; transition:.35s; }
+    .map-node span { display:grid; place-items:center; width:25px; height:25px; margin:0 auto 5px; border-radius:50%; color:var(--muted); background:rgba(255,255,255,.06); }
+    .map-node.active { color:var(--ink); border-color:rgba(54,224,207,.55); background:rgba(54,224,207,.08); transform:translateY(-2px); }
+    .map-node.active span { color:#03201d; background:var(--cyan); box-shadow:0 0 18px rgba(54,224,207,.35); }
+    .map-node.done { color:var(--cyan); border-color:rgba(54,224,207,.25); }
+    .map-node.done span::before { content:"✓"; font-size:.9rem; }
+    .map-node.done span { font-size:0; background:rgba(54,224,207,.14); color:var(--cyan); }
+    .reaction-stage { position:relative; overflow:hidden; min-height:88px; margin:0 0 16px; padding:13px; border:1px solid rgba(88,166,255,.18); border-radius:17px; background:linear-gradient(130deg,rgba(88,166,255,.08),rgba(54,224,207,.035)); }
+    .stage-label { color:var(--blue); font-size:.61rem; font-weight:950; letter-spacing:.12em; }
+    .stage-line { display:flex; align-items:center; justify-content:center; gap:6px; min-height:48px; margin-top:4px; }
+    .molecule { display:inline-grid; place-items:center; min-width:44px; height:30px; padding:0 8px; border:1px solid rgba(255,209,102,.4); border-radius:999px; color:var(--yellow); background:rgba(255,209,102,.08); font-size:.68rem; font-weight:900; animation:moleculeIn .45s ease both; }
+    .stage-arrow { color:var(--cyan); font-weight:950; animation:arrowFlow 1.2s ease-in-out infinite; }
+    @keyframes moleculeIn { from { opacity:0; transform:scale(.7) translateY(8px); } }
+    @keyframes arrowFlow { 50% { transform:translateX(3px); text-shadow:0 0 9px var(--cyan); } }
+    .cycle-wheel { display:flex; align-items:center; justify-content:center; gap:3px; width:100%; }
+    .cycle-step { display:grid; place-items:center; width:45px; height:45px; border:1px solid var(--line); border-radius:50%; color:var(--muted); background:rgba(255,255,255,.035); font-size:.61rem; font-weight:900; }
+    .cycle-step.hot { color:#03201d; background:var(--yellow); border-color:var(--yellow); box-shadow:0 0 18px rgba(255,209,102,.28); }
+    .answer { position:relative; overflow:hidden; transition:transform .2s,border-color .2s,background .2s; }
+    .answer:not(:disabled):hover { transform:translateY(-2px); border-color:rgba(54,224,207,.55); background:rgba(54,224,207,.065); }
+    .answer.correct::after { content:"能量 +1"; position:absolute; right:10px; top:8px; color:var(--cyan); font-size:.62rem; font-weight:950; animation:energyUp .8s ease forwards; }
+    @keyframes energyUp { to { transform:translateY(-16px); opacity:0; } }
+    .questionCard-glow { animation:successGlow .7s ease; }
+    @keyframes successGlow { 45% { box-shadow:0 0 0 2px var(--cyan),0 0 45px rgba(54,224,207,.25); } }
+    .combo { position:fixed; z-index:20; left:50%; top:42%; pointer-events:none; color:var(--yellow); font-size:clamp(2rem,12vw,4rem); font-weight:1000; font-style:italic; text-shadow:0 4px 0 #9b4d16,0 0 30px rgba(255,209,102,.55); opacity:0; transform:translate(-50%,-50%) scale(.4) rotate(-8deg); }
+    .combo.show { animation:comboPop .8s cubic-bezier(.2,1.3,.4,1); }
+    @keyframes comboPop { 30% { opacity:1; transform:translate(-50%,-50%) scale(1.1) rotate(-4deg); } 75% { opacity:1; } 100% { opacity:0; transform:translate(-50%,-80%) scale(.95); } }
+    .particle { position:fixed; z-index:19; width:8px; height:8px; border-radius:2px; pointer-events:none; animation:particleFly .8s ease-out forwards; }
+    @keyframes particleFly { to { transform:translate(var(--dx),var(--dy)) rotate(300deg); opacity:0; } }
+    .grade { position:relative; animation:medalFloat 3s ease-in-out infinite; background:radial-gradient(circle,rgba(255,209,102,.09),transparent 64%); }
+    .grade::before { content:"ATP"; position:absolute; top:-13px; padding:5px 10px; border-radius:999px; color:#332500; background:var(--yellow); font-size:.66rem; font-weight:1000; letter-spacing:.12em; }
+    @keyframes medalFloat { 50% { transform:translateY(-5px); } }
+    @media (max-width:430px) { .mito{height:185px}.fatty{transform:scale(.86)}@keyframes shuttle{0%,12%{transform:translate(0,0) rotate(13deg) scale(.86)}48%,62%{transform:translate(100px,64px) rotate(-8deg) scale(.86)}100%{transform:translate(180px,95px) rotate(8deg) scale(.86);opacity:.15}} }
+  </style>
+</head>
+<body>
+  <div class="aurora a"></div><div class="aurora b"></div>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">β</span><span>OXIDATION LAB</span></div>
+      <div class="status"><button class="sound" id="soundBtn" aria-label="音效开关">♪</button><span class="pill" id="lives">♥ ♥ ♥</span><span class="pill" id="score">0</span></div>
+    </header>
+
+    <section class="screen active card hero" id="home">
+      <div class="live-tag">YOUTH TEACHING CHALLENGE</div>
+      <p class="kicker">BIOCHEMISTRY · CLASS QUEST</p>
+      <h1>线粒体<em>突围</em></h1>
+      <p class="lead">一条长链脂肪酸被困在胞质中。你能护送它进入线粒体、完成 β-氧化循环，并算清它释放的能量吗？</p>
+      <div class="hero-chips"><span class="hero-chip">活化</span><span class="hero-chip">肉碱穿梭</span><span class="hero-chip">四步循环</span><span class="hero-chip">ATP 审计</span></div>
+      <div class="mito" aria-hidden="true">
+        <div class="fatty"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="gate"></div>
+        <div class="mito-body"></div>
+      </div>
+      <button class="primary" id="enterBtn">接受任务 →</button>
+      <div class="minor">约 5 分钟 · 3 个关卡 · 共 12 题</div>
+    </section>
+
+    <section class="screen card setup" id="setup">
+      <p class="kicker">MISSION PROFILE</p>
+      <h2>录入探员档案</h2>
+      <p class="lead">课堂模式会生成个人成绩单，方便截图提交或同桌互评。</p>
+      <label for="playerName">姓名 / 小组代号</label>
+      <input id="playerName" maxlength="16" placeholder="例如：柠檬酸小组" autocomplete="off" />
+      <label>挑战模式</label>
+      <div class="modes" role="radiogroup">
+        <button class="mode active" data-mode="normal">标准<br>3 条生命</button>
+        <button class="mode" data-mode="practice">练习<br>无限生命</button>
+        <button class="mode" data-mode="hard">极限<br>1 条生命</button>
+      </div>
+      <button class="primary" id="startBtn">启动 β-氧化程序</button>
+    </section>
+
+    <section class="screen" id="game">
+      <div class="mission-map" aria-label="闯关地图">
+        <div class="map-node active" data-map="0"><span>1</span>跨膜许可</div>
+        <div class="map-node" data-map="1"><span>2</span>四步回路</div>
+        <div class="map-node" data-map="2"><span>3</span>能量审计</div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-meta"><span id="levelLabel">关卡 1</span><span id="countLabel">1 / 12</span></div>
+        <div class="track"><div class="bar" id="progressBar"></div></div>
+      </div>
+      <div class="card question" id="questionCard">
+        <div class="reaction-stage" id="reactionStage">
+          <div class="stage-label">LIVE METABOLIC MAP</div>
+          <div class="stage-line" id="stageLine"></div>
+        </div>
+        <div class="chapter" id="chapter"></div>
+        <h2 id="questionText"></h2>
+        <p class="prompt-note" id="questionNote"></p>
+        <div class="answers" id="answers"></div>
+        <div class="feedback" id="feedback"><strong id="feedbackTitle"></strong><p id="feedbackText"></p></div>
+        <button class="primary next" id="nextBtn">继续前进 →</button>
+      </div>
+    </section>
+
+    <section class="screen card result" id="result">
+      <p class="kicker">MISSION COMPLETE</p>
+      <h2 id="resultTitle">任务完成</h2>
+      <p class="lead" id="resultCopy" style="margin-left:auto;margin-right:auto"></p>
+      <div class="grade"><div><strong id="finalScore">0</strong><span>总分</span></div></div>
+      <div class="result-grid">
+        <div class="metric"><strong id="correctMetric">0/12</strong><span>答对</span></div>
+        <div class="metric"><strong id="streakMetric">0</strong><span>最高连击</span></div>
+        <div class="metric"><strong id="timeMetric">0:00</strong><span>用时</span></div>
+      </div>
+      <div class="badge" id="badge">称号：β-氧化见习生</div>
+      <div class="review" id="review"></div>
+      <button class="primary" id="shareBtn">复制成绩口令</button>
+      <button class="mode" id="restartBtn" style="width:100%;margin-top:10px">再挑战一次</button>
+    </section>
+  </main>
+  <div class="combo" id="combo">COMBO ×3</div>
+  <div class="toast" id="toast">已复制成绩口令</div>
+
+  <script>
+    const questions = [
+      { level:"关卡 1 · 跨膜许可", chapter:"01 / 脂肪酸活化", q:"长链脂肪酸在进入 β-氧化前，首先被活化为哪种形式？", a:["脂酰-ACP","脂酰-CoA","乙酰-CoA","丙二酰-CoA"], c:1, exp:"脂酰-CoA 合成酶催化脂肪酸与 CoA 形成脂酰-CoA；ATP 被裂解为 AMP + PPi。"},
+      { level:"关卡 1 · 跨膜许可", chapter:"02 / 活化成本", q:"脂肪酸活化消耗 ATP → AMP + PPi，因此相当于消耗几个高能磷酸键？", a:["0 个","1 个","2 个","4 个"], c:2, exp:"ATP 到 AMP 跨过两个磷酸酐键；PPi 随后水解，使反应强烈趋向正向。"},
+      { level:"关卡 1 · 跨膜许可", chapter:"03 / 肉碱穿梭", q:"长链脂酰-CoA 的脂酰基进入线粒体基质，主要依赖哪套系统？", a:["苹果酸-天冬氨酸穿梭","甘油-3-磷酸穿梭","肉碱穿梭","柠檬酸穿梭"], c:2, exp:"CPTⅠ、易位酶和 CPTⅡ 共同完成肉碱穿梭。CoA 本身不随脂酰基穿过内膜。"},
+      { level:"关卡 1 · 跨膜许可", chapter:"04 / 代谢调控", q:"脂肪酸合成活跃时，哪种分子抑制 CPTⅠ，避免合成与分解同时高速进行？", a:["丙二酰-CoA","乙酰-CoA","草酰乙酸","酮体"], c:0, exp:"丙二酰-CoA 是脂肪酸合成的关键中间物，也是 CPTⅠ 的抑制剂，协调脂肪酸合成与氧化。"},
+      { level:"关卡 2 · 四步回路", chapter:"05 / 第一次氧化", q:"β-氧化第一步由脂酰-CoA 脱氢酶催化，直接生成的还原当量是？", a:["NADH","NADPH","FADH₂","FMNH₂"], c:2, exp:"第一步在 α、β 碳间形成反式双键，FAD 被还原；电子经 ETF 进入呼吸链。"},
+      { level:"关卡 2 · 四步回路", chapter:"06 / 反应排序", q:"请选择 β-氧化每轮四步反应的正确顺序。", a:["氧化→水合→氧化→硫解","水合→氧化→硫解→氧化","氧化→硫解→水合→氧化","硫解→氧化→水合→氧化"], c:0, exp:"经典四步是：FAD 依赖氧化、水合、NAD⁺ 依赖氧化、硫解，可记作“氧—水—氧—硫”。"},
+      { level:"关卡 2 · 四步回路", chapter:"07 / 碳链变化", q:"一轮 β-氧化完成后，原脂酰-CoA 通常发生什么变化？", a:["缩短 1 个碳并释放 CO₂","缩短 2 个碳并释放乙酰-CoA","延长 2 个碳","直接全部转为乙酰-CoA"], c:1, exp:"硫解从羧基端切下一个二碳单位乙酰-CoA，留下缩短两个碳的新脂酰-CoA。"},
+      { level:"关卡 2 · 四步回路", chapter:"08 / 定位识别", q:"“β-氧化”之名主要源于脂肪酸的哪个碳原子被氧化？", a:["羧基碳","α 碳","β 碳","末端甲基碳"], c:2, exp:"以羧基碳为 C1，邻近的是 α 碳，再下一个是 β 碳；第二次氧化把 β-羟基氧化为 β-酮基。"},
+      { level:"关卡 3 · 能量审计", chapter:"09 / 轮数计算", q:"一分子软脂酰-CoA（C16:0）完全 β-氧化需要循环多少轮？", note:"提示：偶数碳饱和脂肪酸，轮数 = n/2 − 1。", a:["6 轮","7 轮","8 轮","15 轮"], c:1, exp:"C16 产生 8 个乙酰-CoA，但最后一次裂解直接得到两个乙酰-CoA，因此只需 7 轮。"},
+      { level:"关卡 3 · 能量审计", chapter:"10 / 产物盘点", q:"一分子软脂酰-CoA（C16:0）完成 β-氧化本身，产生哪组产物？", a:["8 乙酰-CoA、7 NADH、7 FADH₂","7 乙酰-CoA、8 NADH、8 FADH₂","8 乙酰-CoA、8 NADH、7 FADH₂","16 乙酰-CoA、7 NADH、7 FADH₂"], c:0, exp:"每轮产生 1 NADH 和 1 FADH₂，共 7 组；碳链最终形成 8 个乙酰-CoA。"},
+      { level:"关卡 3 · 能量审计", chapter:"11 / ATP 总账", q:"按 NADH≈2.5 ATP、FADH₂≈1.5 ATP、每个乙酰-CoA≈10 ATP 计算，1 分子软脂酸完全氧化净得约多少 ATP？", note:"别忘了脂肪酸活化相当于消耗 2 ATP。", a:["80 ATP","106 ATP","108 ATP","129 ATP"], c:1, exp:"8×10 + 7×2.5 + 7×1.5 − 2 = 106 ATP。若教材采用旧 P/O 比，数值会不同，课堂上应先统一口径。"},
+      { level:"关卡 3 · 能量审计", chapter:"12 / 综合决策", q:"低血糖、胰高血糖素升高时，肝细胞脂肪酸 β-氧化增强。最合理的一组变化是？", a:["脂解↓，丙二酰-CoA↑，CPTⅠ受抑","脂解↑，丙二酰-CoA↓，脂酰基入线粒体↑","脂解↑，丙二酰-CoA↑，CPTⅠ受抑","脂解↓，丙二酰-CoA↓，脂肪酸合成↑"], c:1, exp:"低能量状态促进脂肪动员，并降低丙二酰-CoA 对 CPTⅠ 的抑制，使长链脂酰基更易进入线粒体氧化。"}
+    ];
+
+    const $ = s => document.querySelector(s);
+    const screens = [...document.querySelectorAll(".screen")];
+    let index=0, score=0, correct=0, streak=0, maxStreak=0, lives=3, mode="normal", locked=false, startTime=0, wrongs=[];
+    let soundOn=true, audioCtx;
+    const tone=(freq=440,duration=.08,type="sine",gain=.045)=>{
+      if(!soundOn)return;
+      audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
+      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(gain,audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);
+      o.connect(g).connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+duration);
+    };
+    const soundSuccess=()=>{ tone(523,.09);setTimeout(()=>tone(659,.09),80);setTimeout(()=>tone(784,.13),160); };
+    const soundWrong=()=>{ tone(180,.13,"sawtooth",.025);setTimeout(()=>tone(130,.18,"sawtooth",.02),90); };
+    $("#soundBtn").onclick=()=>{soundOn=!soundOn;$("#soundBtn").classList.toggle("off",!soundOn);$("#soundBtn").textContent=soundOn?"♪":"×";if(soundOn)tone(660,.08);};
+    function burst(){
+      const colors=["#36e0cf","#ffd166","#58a6ff","#ff6b6b"];
+      for(let i=0;i<18;i++){
+        const p=document.createElement("i");p.className="particle";
+        p.style.left="50%";p.style.top="48%";p.style.background=colors[i%colors.length];
+        p.style.setProperty("--dx",`${(Math.random()-.5)*260}px`);
+        p.style.setProperty("--dy",`${(Math.random()-.65)*250}px`);
+        document.body.appendChild(p);setTimeout(()=>p.remove(),850);
+      }
+    }
+    function updateMap(){
+      const level=Math.min(2,Math.floor(index/4));
+      document.querySelectorAll(".map-node").forEach((node,i)=>{
+        node.classList.toggle("active",i===level);node.classList.toggle("done",i<level);
+      });
+    }
+    function renderStage(){
+      const part=index<4?0:index<8?1:2;
+      const step=index%4;
+      let html="";
+      if(part===0){
+        const states=[
+          ["脂肪酸","ATP → AMP","脂酰-CoA"],
+          ["ATP","−2 ATP","活化完成"],
+          ["脂酰-CoA","肉碱穿梭","基质"],
+          ["丙二酰-CoA","⊣ CPT I","入口关闭"]
+        ][step];
+        html=`<span class="molecule">${states[0]}</span><span class="stage-arrow">→</span><span class="molecule">${states[1]}</span><span class="stage-arrow">→</span><span class="molecule">${states[2]}</span>`;
+      } else if(part===1){
+        const names=["氧化","水合","再氧化","硫解"];
+        html=`<div class="cycle-wheel">${names.map((n,i)=>`<span class="cycle-step ${i===step?"hot":""}">${n}</span>${i<3?'<span class="stage-arrow">›</span>':""}`).join("")}</div>`;
+      } else {
+        const states=[
+          ["C16:0","7 轮","8×乙酰-CoA"],
+          ["7×NADH","7×FADH₂","8×乙酰-CoA"],
+          ["80+17.5+10.5","−2 ATP","106 ATP"],
+          ["脂解 ↑","CPT I 开放","β-氧化 ↑"]
+        ][step];
+        html=`<span class="molecule">${states[0]}</span><span class="stage-arrow">+</span><span class="molecule">${states[1]}</span><span class="stage-arrow">→</span><span class="molecule">${states[2]}</span>`;
+      }
+      $("#stageLine").innerHTML=html;updateMap();
+    }
+    const show = id => { screens.forEach(s=>s.classList.toggle("active",s.id===id)); scrollTo({top:0,behavior:"smooth"}); };
+    const updateStatus = () => {
+      $("#score").textContent=score;
+      $("#lives").textContent=mode==="practice" ? "∞ 生命" : (lives>0 ? "♥ ".repeat(lives).trim() : "♡");
+    };
+    $("#enterBtn").onclick=()=>show("setup");
+    document.querySelectorAll(".mode[data-mode]").forEach(btn=>btn.onclick=()=>{
+      document.querySelectorAll(".mode[data-mode]").forEach(x=>x.classList.remove("active"));
+      btn.classList.add("active"); mode=btn.dataset.mode;
+    });
+    $("#startBtn").onclick=()=>{
+      if(!$("#playerName").value.trim()){ $("#playerName").classList.add("shake"); setTimeout(()=>$("#playerName").classList.remove("shake"),350); $("#playerName").focus(); return; }
+      index=score=correct=streak=maxStreak=0; lives=mode==="hard"?1:3; wrongs=[]; startTime=Date.now(); updateStatus(); show("game"); renderQuestion();
+    };
+    function renderQuestion(){
+      locked=false; const x=questions[index];
+      renderStage();
+      $("#levelLabel").textContent=x.level; $("#countLabel").textContent=`${index+1} / ${questions.length}`;
+      $("#progressBar").style.width=`${index/questions.length*100}%`;
+      $("#chapter").textContent=x.chapter; $("#questionText").textContent=x.q;
+      $("#questionNote").textContent=x.note||""; $("#questionNote").style.display=x.note?"block":"none";
+      $("#feedback").classList.remove("show"); $("#nextBtn").classList.remove("show");
+      $("#answers").innerHTML="";
+      x.a.forEach((text,i)=>{
+        const b=document.createElement("button"); b.className="answer";
+        b.innerHTML=`<b>${String.fromCharCode(65+i)}</b><span>${text}</span>`;
+        b.onclick=()=>answer(i,b); $("#answers").appendChild(b);
+      });
+    }
+    function answer(choice,button){
+      if(locked)return; locked=true; const x=questions[index]; const ok=choice===x.c;
+      [...$("#answers").children].forEach((b,i)=>{ b.disabled=true; b.classList.add(i===x.c?"correct":(i===choice?"wrong":"dim")); });
+      if(ok){
+        correct++; streak++; maxStreak=Math.max(maxStreak,streak); score+=100+Math.min(streak-1,5)*20; $("#feedbackTitle").textContent=streak>=3?`正确！${streak} 连击 ⚡`:"通行许可已验证";
+        $("#questionCard").classList.add("questionCard-glow");setTimeout(()=>$("#questionCard").classList.remove("questionCard-glow"),720);soundSuccess();
+        if(streak>=3){$("#combo").textContent=`COMBO ×${streak}`;$("#combo").classList.remove("show");void $("#combo").offsetWidth;$("#combo").classList.add("show");burst();}
+      }
+      else { streak=0; wrongs.push(index); if(mode!=="practice")lives--; $("#feedbackTitle").textContent="拦截！重新校准知识坐标"; $("#questionCard").classList.add("shake"); setTimeout(()=>$("#questionCard").classList.remove("shake"),350);soundWrong(); }
+      $("#feedbackText").textContent=x.exp; $("#feedback").classList.add("show"); $("#nextBtn").classList.add("show"); updateStatus();
+      if(lives<=0) $("#nextBtn").textContent="查看本次战报 →"; else $("#nextBtn").textContent=index===questions.length-1?"生成任务报告 →":"继续前进 →";
+    }
+    $("#nextBtn").onclick=()=>{
+      if(lives<=0 || index===questions.length-1){ finish(); return; }
+      index++; renderQuestion();
+    };
+    function finish(){
+      const elapsed=Math.round((Date.now()-startTime)/1000), totalAnswered=index+1;
+      const rate=correct/totalAnswered, name=$("#playerName").value.trim();
+      $("#progressBar").style.width="100%"; $("#finalScore").textContent=score;
+      $("#correctMetric").textContent=`${correct}/${totalAnswered}`; $("#streakMetric").textContent=maxStreak;
+      $("#timeMetric").textContent=`${Math.floor(elapsed/60)}:${String(elapsed%60).padStart(2,"0")}`;
+      let title="β-氧化见习生", copy="路线已经打通，再来一次就能把关键节点连成完整代谢地图。";
+      if(rate>=.92){title="线粒体首席能量官";copy="从肉碱穿梭到 ATP 总账，你已经完成了一次漂亮的代谢审计。";}
+      else if(rate>=.75){title="脂酰-CoA 护航员";copy="主路线掌握稳健，复盘错题后就能实现全程无损突围。";}
+      else if(rate>=.5){title="β-氧化维修师";copy="四步循环已启动，但入口调控与能量核算仍需进一步校准。";}
+      $("#resultTitle").textContent=`${name}，${lives<=0?"任务中止":"突围成功"}！`;
+      $("#resultCopy").textContent=copy; $("#badge").textContent=`称号：${title}`;
+      $("#review").innerHTML=wrongs.length ? `<h3>建议复盘</h3>`+wrongs.map(i=>`<div class="review-item"><b>${questions[i].chapter}</b><br>${questions[i].q}</div>`).join("") : `<div class="badge">全对通关：代谢链路零故障 ✦</div>`;
+      show("result");
+    }
+    $("#shareBtn").onclick=async()=>{
+      const text=`【β-氧化·线粒体突围】${$("#playerName").value.trim()}｜${$("#correctMetric").textContent}题正确｜${$("#finalScore").textContent}分｜最高${$("#streakMetric").textContent}连击｜用时${$("#timeMetric").textContent}`;
+      try { await navigator.clipboard.writeText(text); } catch { const t=document.createElement("textarea");t.value=text;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove(); }
+      $("#toast").classList.add("show"); setTimeout(()=>$("#toast").classList.remove("show"),1800);
+    };
+    $("#restartBtn").onclick=()=>show("setup");
+    updateStatus();
+  </script>
+</body>
+</html>
