@@ -151,7 +151,9 @@
     .particle { position:fixed; z-index:19; width:8px; height:8px; border-radius:2px; pointer-events:none; animation:particleFly .8s ease-out forwards; }
     @keyframes particleFly { to { transform:translate(var(--dx),var(--dy)) rotate(300deg); opacity:0; } }
     .grade { position:relative; animation:medalFloat 3s ease-in-out infinite; background:radial-gradient(circle,rgba(255,209,102,.09),transparent 64%); }
-    .grade::before { content:"ATP"; position:absolute; top:-13px; padding:5px 10px; border-radius:999px; color:#332500; background:var(--yellow); font-size:.66rem; font-weight:1000; letter-spacing:.12em; }
+    .grade::before { content:"90s QUEST"; position:absolute; top:-13px; padding:5px 10px; border-radius:999px; color:#332500; background:var(--yellow); font-size:.66rem; font-weight:1000; letter-spacing:.12em; }
+    .timer-low { color:var(--coral)!important; border-color:rgba(255,107,107,.55)!important; animation:timerPulse .8s ease-in-out infinite; }
+    @keyframes timerPulse { 50% { transform:scale(1.06); box-shadow:0 0 18px rgba(255,107,107,.25); } }
     @keyframes medalFloat { 50% { transform:translateY(-5px); } }
     @media (max-width:430px) { .mito{height:185px}.fatty{transform:scale(.86)}@keyframes shuttle{0%,12%{transform:translate(0,0) rotate(13deg) scale(.86)}48%,62%{transform:translate(100px,64px) rotate(-8deg) scale(.86)}100%{transform:translate(180px,95px) rotate(8deg) scale(.86);opacity:.15}} }
   </style>
@@ -161,44 +163,38 @@
   <main class="shell">
     <header class="topbar">
       <div class="brand"><span class="brand-mark">β</span><span>OXIDATION LAB</span></div>
-      <div class="status"><button class="sound" id="soundBtn" aria-label="音效开关">♪</button><span class="pill" id="lives">♥ ♥ ♥</span><span class="pill" id="score">0</span></div>
+      <div class="status"><button class="sound" id="soundBtn" aria-label="音效开关">♪</button><span class="pill" id="timer">1:30</span><span class="pill" id="score">0</span></div>
     </header>
 
     <section class="screen active card hero" id="home">
       <div class="live-tag">YOUTH TEACHING CHALLENGE</div>
       <p class="kicker">BIOCHEMISTRY · CLASS QUEST</p>
-      <h1>线粒体<em>突围</em></h1>
-      <p class="lead">一条长链脂肪酸被困在胞质中。你能护送它进入线粒体、完成 β-氧化循环，并算清它释放的能量吗？</p>
-      <div class="hero-chips"><span class="hero-chip">活化</span><span class="hero-chip">肉碱穿梭</span><span class="hero-chip">四步循环</span><span class="hero-chip">ATP 审计</span></div>
+      <h1>线粒体<em>90 秒突围</em></h1>
+      <p class="lead">护送一条长链脂肪酸完成活化、搭乘肉碱穿梭，并通过 β-氧化四步反应。准备好了吗？</p>
+      <div class="hero-chips"><span class="hero-chip">脂肪酸活化</span><span class="hero-chip">肉碱穿梭</span><span class="hero-chip">氧—水—氧—硫</span></div>
       <div class="mito" aria-hidden="true">
         <div class="fatty"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
         <div class="gate"></div>
         <div class="mito-body"></div>
       </div>
       <button class="primary" id="enterBtn">接受任务 →</button>
-      <div class="minor">约 5 分钟 · 3 个关卡 · 共 12 题</div>
+      <div class="minor">90 秒 · 3 个知识站 · 共 6 题</div>
     </section>
 
     <section class="screen card setup" id="setup">
       <p class="kicker">MISSION PROFILE</p>
       <h2>录入探员档案</h2>
-      <p class="lead">课堂模式会生成个人成绩单，方便截图提交或同桌互评。</p>
+      <p class="lead">6 道基础题，答完立即反馈。目标是在 90 秒内完成代谢护送。</p>
       <label for="playerName">姓名 / 小组代号</label>
       <input id="playerName" maxlength="16" placeholder="例如：柠檬酸小组" autocomplete="off" />
-      <label>挑战模式</label>
-      <div class="modes" role="radiogroup">
-        <button class="mode active" data-mode="normal">标准<br>3 条生命</button>
-        <button class="mode" data-mode="practice">练习<br>无限生命</button>
-        <button class="mode" data-mode="hard">极限<br>1 条生命</button>
-      </div>
       <button class="primary" id="startBtn">启动 β-氧化程序</button>
     </section>
 
     <section class="screen" id="game">
       <div class="mission-map" aria-label="闯关地图">
-        <div class="map-node active" data-map="0"><span>1</span>跨膜许可</div>
-        <div class="map-node" data-map="1"><span>2</span>四步回路</div>
-        <div class="map-node" data-map="2"><span>3</span>能量审计</div>
+        <div class="map-node active" data-map="0"><span>1</span>完成活化</div>
+        <div class="map-node" data-map="1"><span>2</span>肉碱穿梭</div>
+        <div class="map-node" data-map="2"><span>3</span>四步反应</div>
       </div>
       <div class="progress-wrap">
         <div class="progress-meta"><span id="levelLabel">关卡 1</span><span id="countLabel">1 / 12</span></div>
@@ -224,7 +220,7 @@
       <p class="lead" id="resultCopy" style="margin-left:auto;margin-right:auto"></p>
       <div class="grade"><div><strong id="finalScore">0</strong><span>总分</span></div></div>
       <div class="result-grid">
-        <div class="metric"><strong id="correctMetric">0/12</strong><span>答对</span></div>
+        <div class="metric"><strong id="correctMetric">0/6</strong><span>答对</span></div>
         <div class="metric"><strong id="streakMetric">0</strong><span>最高连击</span></div>
         <div class="metric"><strong id="timeMetric">0:00</strong><span>用时</span></div>
       </div>
@@ -239,23 +235,17 @@
 
   <script>
     const questions = [
-      { level:"关卡 1 · 跨膜许可", chapter:"01 / 脂肪酸活化", q:"长链脂肪酸在进入 β-氧化前，首先被活化为哪种形式？", a:["脂酰-ACP","脂酰-CoA","乙酰-CoA","丙二酰-CoA"], c:1, exp:"脂酰-CoA 合成酶催化脂肪酸与 CoA 形成脂酰-CoA；ATP 被裂解为 AMP + PPi。"},
-      { level:"关卡 1 · 跨膜许可", chapter:"02 / 活化成本", q:"脂肪酸活化消耗 ATP → AMP + PPi，因此相当于消耗几个高能磷酸键？", a:["0 个","1 个","2 个","4 个"], c:2, exp:"ATP 到 AMP 跨过两个磷酸酐键；PPi 随后水解，使反应强烈趋向正向。"},
-      { level:"关卡 1 · 跨膜许可", chapter:"03 / 肉碱穿梭", q:"长链脂酰-CoA 的脂酰基进入线粒体基质，主要依赖哪套系统？", a:["苹果酸-天冬氨酸穿梭","甘油-3-磷酸穿梭","肉碱穿梭","柠檬酸穿梭"], c:2, exp:"CPTⅠ、易位酶和 CPTⅡ 共同完成肉碱穿梭。CoA 本身不随脂酰基穿过内膜。"},
-      { level:"关卡 1 · 跨膜许可", chapter:"04 / 代谢调控", q:"脂肪酸合成活跃时，哪种分子抑制 CPTⅠ，避免合成与分解同时高速进行？", a:["丙二酰-CoA","乙酰-CoA","草酰乙酸","酮体"], c:0, exp:"丙二酰-CoA 是脂肪酸合成的关键中间物，也是 CPTⅠ 的抑制剂，协调脂肪酸合成与氧化。"},
-      { level:"关卡 2 · 四步回路", chapter:"05 / 第一次氧化", q:"β-氧化第一步由脂酰-CoA 脱氢酶催化，直接生成的还原当量是？", a:["NADH","NADPH","FADH₂","FMNH₂"], c:2, exp:"第一步在 α、β 碳间形成反式双键，FAD 被还原；电子经 ETF 进入呼吸链。"},
-      { level:"关卡 2 · 四步回路", chapter:"06 / 反应排序", q:"请选择 β-氧化每轮四步反应的正确顺序。", a:["氧化→水合→氧化→硫解","水合→氧化→硫解→氧化","氧化→硫解→水合→氧化","硫解→氧化→水合→氧化"], c:0, exp:"经典四步是：FAD 依赖氧化、水合、NAD⁺ 依赖氧化、硫解，可记作“氧—水—氧—硫”。"},
-      { level:"关卡 2 · 四步回路", chapter:"07 / 碳链变化", q:"一轮 β-氧化完成后，原脂酰-CoA 通常发生什么变化？", a:["缩短 1 个碳并释放 CO₂","缩短 2 个碳并释放乙酰-CoA","延长 2 个碳","直接全部转为乙酰-CoA"], c:1, exp:"硫解从羧基端切下一个二碳单位乙酰-CoA，留下缩短两个碳的新脂酰-CoA。"},
-      { level:"关卡 2 · 四步回路", chapter:"08 / 定位识别", q:"“β-氧化”之名主要源于脂肪酸的哪个碳原子被氧化？", a:["羧基碳","α 碳","β 碳","末端甲基碳"], c:2, exp:"以羧基碳为 C1，邻近的是 α 碳，再下一个是 β 碳；第二次氧化把 β-羟基氧化为 β-酮基。"},
-      { level:"关卡 3 · 能量审计", chapter:"09 / 轮数计算", q:"一分子软脂酰-CoA（C16:0）完全 β-氧化需要循环多少轮？", note:"提示：偶数碳饱和脂肪酸，轮数 = n/2 − 1。", a:["6 轮","7 轮","8 轮","15 轮"], c:1, exp:"C16 产生 8 个乙酰-CoA，但最后一次裂解直接得到两个乙酰-CoA，因此只需 7 轮。"},
-      { level:"关卡 3 · 能量审计", chapter:"10 / 产物盘点", q:"一分子软脂酰-CoA（C16:0）完成 β-氧化本身，产生哪组产物？", a:["8 乙酰-CoA、7 NADH、7 FADH₂","7 乙酰-CoA、8 NADH、8 FADH₂","8 乙酰-CoA、8 NADH、7 FADH₂","16 乙酰-CoA、7 NADH、7 FADH₂"], c:0, exp:"每轮产生 1 NADH 和 1 FADH₂，共 7 组；碳链最终形成 8 个乙酰-CoA。"},
-      { level:"关卡 3 · 能量审计", chapter:"11 / ATP 总账", q:"按 NADH≈2.5 ATP、FADH₂≈1.5 ATP、每个乙酰-CoA≈10 ATP 计算，1 分子软脂酸完全氧化净得约多少 ATP？", note:"别忘了脂肪酸活化相当于消耗 2 ATP。", a:["80 ATP","106 ATP","108 ATP","129 ATP"], c:1, exp:"8×10 + 7×2.5 + 7×1.5 − 2 = 106 ATP。若教材采用旧 P/O 比，数值会不同，课堂上应先统一口径。"},
-      { level:"关卡 3 · 能量审计", chapter:"12 / 综合决策", q:"低血糖、胰高血糖素升高时，肝细胞脂肪酸 β-氧化增强。最合理的一组变化是？", a:["脂解↓，丙二酰-CoA↑，CPTⅠ受抑","脂解↑，丙二酰-CoA↓，脂酰基入线粒体↑","脂解↑，丙二酰-CoA↑，CPTⅠ受抑","脂解↓，丙二酰-CoA↓，脂肪酸合成↑"], c:1, exp:"低能量状态促进脂肪动员，并降低丙二酰-CoA 对 CPTⅠ 的抑制，使长链脂酰基更易进入线粒体氧化。"}
+      { level:"知识站 1 · 完成活化", chapter:"01 / 活化产物", q:"脂肪酸进入 β-氧化前，要先被活化成什么？", a:["脂酰-CoA","乙酰-CoA","丙酮酸","胆固醇"], c:0, exp:"脂肪酸与 CoA 结合形成脂酰-CoA，才获得进入后续氧化过程的“通行证”。"},
+      { level:"知识站 1 · 完成活化", chapter:"02 / 能量参与", q:"脂肪酸活化时，需要哪种分子提供能量？", a:["ATP","葡萄糖","乳酸","氧气"], c:0, exp:"脂酰-CoA 合成酶利用 ATP，将脂肪酸活化为脂酰-CoA。"},
+      { level:"知识站 2 · 肉碱穿梭", chapter:"03 / 跨膜工具", q:"长链脂酰基进入线粒体基质，主要依靠什么？", a:["肉碱穿梭","柠檬酸循环","尿素循环","糖酵解"], c:0, exp:"线粒体内膜不能让长链脂酰-CoA直接通过，因此需要肉碱穿梭协助运输脂酰基。"},
+      { level:"知识站 2 · 肉碱穿梭", chapter:"04 / 穿梭任务", q:"肉碱穿梭的核心任务是把什么送入线粒体基质？", a:["脂酰基","整个 CoA","葡萄糖","氧气"], c:0, exp:"被运输的是脂酰基；胞质侧和基质侧分别使用各自的 CoA。"},
+      { level:"知识站 3 · 四步反应", chapter:"05 / 顺序口诀", q:"β-氧化一轮四步反应的正确顺序是？", a:["氧化→水合→氧化→硫解","水合→氧化→硫解→氧化","硫解→水合→氧化→氧化","氧化→硫解→水合→氧化"], c:0, exp:"记住口诀“氧—水—氧—硫”：第一次氧化、水合、第二次氧化、硫解。"},
+      { level:"知识站 3 · 四步反应", chapter:"06 / 循环结果", q:"一轮 β-氧化后，脂酰-CoA 碳链通常缩短几个碳？", a:["1 个","2 个","3 个","完全消失"], c:1, exp:"硫解切下一个二碳单位乙酰-CoA，因此原脂酰-CoA碳链缩短两个碳。"}
     ];
 
     const $ = s => document.querySelector(s);
     const screens = [...document.querySelectorAll(".screen")];
-    let index=0, score=0, correct=0, streak=0, maxStreak=0, lives=3, mode="normal", locked=false, startTime=0, wrongs=[];
+    let index=0, score=0, correct=0, streak=0, maxStreak=0, lives=3, mode="normal", locked=false, startTime=0, wrongs=[], timeLeft=90, timerId;
     let soundOn=true, audioCtx;
     const tone=(freq=440,duration=.08,type="sine",gain=.045)=>{
       if(!soundOn)return;
@@ -279,42 +269,42 @@
       }
     }
     function updateMap(){
-      const level=Math.min(2,Math.floor(index/4));
+      const level=Math.min(2,Math.floor(index/2));
       document.querySelectorAll(".map-node").forEach((node,i)=>{
         node.classList.toggle("active",i===level);node.classList.toggle("done",i<level);
       });
     }
     function renderStage(){
-      const part=index<4?0:index<8?1:2;
-      const step=index%4;
+      const part=Math.min(2,Math.floor(index/2)), step=index%2;
       let html="";
       if(part===0){
-        const states=[
-          ["脂肪酸","ATP → AMP","脂酰-CoA"],
-          ["ATP","−2 ATP","活化完成"],
-          ["脂酰-CoA","肉碱穿梭","基质"],
-          ["丙二酰-CoA","⊣ CPT I","入口关闭"]
-        ][step];
+        const states=[["脂肪酸","ATP + CoA","脂酰-CoA"],["脂肪酸","ATP","活化完成"]][step];
         html=`<span class="molecule">${states[0]}</span><span class="stage-arrow">→</span><span class="molecule">${states[1]}</span><span class="stage-arrow">→</span><span class="molecule">${states[2]}</span>`;
       } else if(part===1){
-        const names=["氧化","水合","再氧化","硫解"];
-        html=`<div class="cycle-wheel">${names.map((n,i)=>`<span class="cycle-step ${i===step?"hot":""}">${n}</span>${i<3?'<span class="stage-arrow">›</span>':""}`).join("")}</div>`;
+        const states=[["脂酰-CoA","肉碱穿梭","线粒体基质"],["脂酰基","跨越内膜","脂酰-CoA"]][step];
+        html=`<span class="molecule">${states[0]}</span><span class="stage-arrow">→</span><span class="molecule">${states[1]}</span><span class="stage-arrow">→</span><span class="molecule">${states[2]}</span>`;
       } else {
-        const states=[
-          ["C16:0","7 轮","8×乙酰-CoA"],
-          ["7×NADH","7×FADH₂","8×乙酰-CoA"],
-          ["80+17.5+10.5","−2 ATP","106 ATP"],
-          ["脂解 ↑","CPT I 开放","β-氧化 ↑"]
-        ][step];
-        html=`<span class="molecule">${states[0]}</span><span class="stage-arrow">+</span><span class="molecule">${states[1]}</span><span class="stage-arrow">→</span><span class="molecule">${states[2]}</span>`;
+        const names=["氧化","水合","再氧化","硫解"];
+        html=`<div class="cycle-wheel">${names.map((n,i)=>`<span class="cycle-step ${i===(step?3:0)?"hot":""}">${n}</span>${i<3?'<span class="stage-arrow">›</span>':""}`).join("")}</div>`;
       }
       $("#stageLine").innerHTML=html;updateMap();
     }
     const show = id => { screens.forEach(s=>s.classList.toggle("active",s.id===id)); scrollTo({top:0,behavior:"smooth"}); };
     const updateStatus = () => {
       $("#score").textContent=score;
-      $("#lives").textContent=mode==="practice" ? "∞ 生命" : (lives>0 ? "♥ ".repeat(lives).trim() : "♡");
     };
+    function updateTimer(){
+      const timer=$("#timer");
+      timer.textContent=`${Math.floor(timeLeft/60)}:${String(timeLeft%60).padStart(2,"0")}`;
+      timer.classList.toggle("timer-low",timeLeft<=15);
+    }
+    function startTimer(){
+      clearInterval(timerId);timeLeft=90;updateTimer();
+      timerId=setInterval(()=>{
+        timeLeft--;updateTimer();
+        if(timeLeft<=0){clearInterval(timerId);locked=true;finish(true);}
+      },1000);
+    }
     $("#enterBtn").onclick=()=>show("setup");
     document.querySelectorAll(".mode[data-mode]").forEach(btn=>btn.onclick=()=>{
       document.querySelectorAll(".mode[data-mode]").forEach(x=>x.classList.remove("active"));
@@ -322,7 +312,7 @@
     });
     $("#startBtn").onclick=()=>{
       if(!$("#playerName").value.trim()){ $("#playerName").classList.add("shake"); setTimeout(()=>$("#playerName").classList.remove("shake"),350); $("#playerName").focus(); return; }
-      index=score=correct=streak=maxStreak=0; lives=mode==="hard"?1:3; wrongs=[]; startTime=Date.now(); updateStatus(); show("game"); renderQuestion();
+      index=score=correct=streak=maxStreak=0; lives=99; wrongs=[]; startTime=Date.now(); updateStatus(); show("game"); renderQuestion(); startTimer();
     };
     function renderQuestion(){
       locked=false; const x=questions[index];
@@ -347,25 +337,26 @@
         $("#questionCard").classList.add("questionCard-glow");setTimeout(()=>$("#questionCard").classList.remove("questionCard-glow"),720);soundSuccess();
         if(streak>=3){$("#combo").textContent=`COMBO ×${streak}`;$("#combo").classList.remove("show");void $("#combo").offsetWidth;$("#combo").classList.add("show");burst();}
       }
-      else { streak=0; wrongs.push(index); if(mode!=="practice")lives--; $("#feedbackTitle").textContent="拦截！重新校准知识坐标"; $("#questionCard").classList.add("shake"); setTimeout(()=>$("#questionCard").classList.remove("shake"),350);soundWrong(); }
+      else { streak=0; wrongs.push(index); $("#feedbackTitle").textContent="别急，看清提示再前进"; $("#questionCard").classList.add("shake"); setTimeout(()=>$("#questionCard").classList.remove("shake"),350);soundWrong(); }
       $("#feedbackText").textContent=x.exp; $("#feedback").classList.add("show"); $("#nextBtn").classList.add("show"); updateStatus();
-      if(lives<=0) $("#nextBtn").textContent="查看本次战报 →"; else $("#nextBtn").textContent=index===questions.length-1?"生成任务报告 →":"继续前进 →";
+      $("#nextBtn").textContent=index===questions.length-1?"生成任务报告 →":"继续前进 →";
     }
     $("#nextBtn").onclick=()=>{
-      if(lives<=0 || index===questions.length-1){ finish(); return; }
+      if(index===questions.length-1){ finish(); return; }
       index++; renderQuestion();
     };
-    function finish(){
+    function finish(timedOut=false){
+      clearInterval(timerId);
       const elapsed=Math.round((Date.now()-startTime)/1000), totalAnswered=index+1;
       const rate=correct/totalAnswered, name=$("#playerName").value.trim();
       $("#progressBar").style.width="100%"; $("#finalScore").textContent=score;
       $("#correctMetric").textContent=`${correct}/${totalAnswered}`; $("#streakMetric").textContent=maxStreak;
       $("#timeMetric").textContent=`${Math.floor(elapsed/60)}:${String(elapsed%60).padStart(2,"0")}`;
-      let title="β-氧化见习生", copy="路线已经打通，再来一次就能把关键节点连成完整代谢地图。";
-      if(rate>=.92){title="线粒体首席能量官";copy="从肉碱穿梭到 ATP 总账，你已经完成了一次漂亮的代谢审计。";}
-      else if(rate>=.75){title="脂酰-CoA 护航员";copy="主路线掌握稳健，复盘错题后就能实现全程无损突围。";}
-      else if(rate>=.5){title="β-氧化维修师";copy="四步循环已启动，但入口调控与能量核算仍需进一步校准。";}
-      $("#resultTitle").textContent=`${name}，${lives<=0?"任务中止":"突围成功"}！`;
+      let title="代谢通路见习生", copy="活化、运输、氧化三段路线已经建立，再挑战一次会更熟练。";
+      if(rate>=.92){title="线粒体闪电护航员";copy="90 秒核心路线掌握得又快又准，漂亮突围！";}
+      else if(rate>=.75){title="脂酰-CoA 护航员";copy="核心路线掌握稳健，复盘一个细节就能全对通关。";}
+      else if(rate>=.5){title="β-氧化探索者";copy="已经抓住主线，重点再记一次“氧—水—氧—硫”。";}
+      $("#resultTitle").textContent=`${name}，${timedOut?"时间到":"突围成功"}！`;
       $("#resultCopy").textContent=copy; $("#badge").textContent=`称号：${title}`;
       $("#review").innerHTML=wrongs.length ? `<h3>建议复盘</h3>`+wrongs.map(i=>`<div class="review-item"><b>${questions[i].chapter}</b><br>${questions[i].q}</div>`).join("") : `<div class="badge">全对通关：代谢链路零故障 ✦</div>`;
       show("result");
